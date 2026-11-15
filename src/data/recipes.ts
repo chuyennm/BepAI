@@ -1,4 +1,5 @@
 import { COM_NHA_RECIPES } from './comNha'
+import { DISH_IMAGES } from './images'
 import { NHAU_A_AU_RECIPES } from './nhauAAu'
 import type { Aisle, Course, DietFlag, Ingredient, IngredientGroup, Recipe, RecipeImage, Step, WeatherMood } from '../types/recipe'
 
@@ -718,6 +719,5 @@ export const SEED_RECIPES: Recipe[] = [
   ...BASE_RECIPES.map(
     (recipe): Recipe => ({ ...recipe, ...EXTRAS[recipe.id], course: BASE_COURSE[recipe.id], source: 'seed' }),
   ),
-  ...COM_NHA_RECIPES,
-  ...NHAU_A_AU_RECIPES,
+  ...[...COM_NHA_RECIPES, ...NHAU_A_AU_RECIPES].map((recipe): Recipe => ({ ...recipe, image: DISH_IMAGES[recipe.id] })),
 ]

@@ -60,4 +60,4 @@ src/
 ## Lưu ý
 
 - Cảnh báo sức khoẻ dựa trên nguyên tắc dinh dưỡng chung, mang tính tham khảo, không thay cho tư vấn của bác sĩ.
-- Ảnh món ăn từ Wikimedia Commons, ghi tác giả và giấy phép dưới mỗi công thức.
+- Ảnh món ăn (36/65 món) từ Wikimedia Commons, ghi tác giả và giấy phép dưới mỗi công thức; món chưa có ảnh giấy phép mở phù hợp dùng bìa minh hoạ.
