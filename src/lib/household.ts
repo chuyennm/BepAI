@@ -262,6 +262,9 @@ export function suitability(recipe: Recipe, profile: Profile, weather: Weather |
   if (recipe.region === profileRegion(profile)) score += 1
   if (profile.spicy === 'khong' && recipe.dietFlags?.includes('cay')) score -= 1
   for (const w of healthWarnings(recipe, profile.conditions)) score -= w.severity === 'tranh' ? 4 : 1.5
+  // Vừa nấu trong 3 ngày gần đây thì lùi xuống để bữa cơm đổi món.
+  const cooked = getStored<Record<string, number[]>>('cooked', {})[recipe.id]
+  if (cooked?.length && Date.now() - cooked[cooked.length - 1] < 3 * 86_400_000) score -= 2.5
   return score
 }
 

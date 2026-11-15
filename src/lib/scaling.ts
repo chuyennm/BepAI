@@ -26,7 +26,7 @@ export function scaleAmount(amount: number, unit: string, factor: number): { amo
   if (SPOON_UNITS.some((s) => u.startsWith(s))) {
     return { amount: raw < 1 ? Math.max(roundTo(raw, 0.25), 0.25) : roundTo(raw, 0.5), unit }
   }
-  return { amount: Math.max(roundTo(raw, 0.5), 0.5), unit }
+  return { amount: raw < 1 ? Math.max(roundTo(raw, 0.25), 0.25) : roundTo(raw, 0.5), unit }
 }
 
 export function formatNumber(n: number): string {

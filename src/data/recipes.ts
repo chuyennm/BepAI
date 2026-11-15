@@ -1,4 +1,6 @@
-import type { Aisle, DietFlag, Ingredient, IngredientGroup, Recipe, RecipeImage, Step, WeatherMood } from '../types/recipe'
+import { COM_NHA_RECIPES } from './comNha'
+import { NHAU_A_AU_RECIPES } from './nhauAAu'
+import type { Aisle, Course, DietFlag, Ingredient, IngredientGroup, Recipe, RecipeImage, Step, WeatherMood } from '../types/recipe'
 
 /** Viết gọn một dòng nguyên liệu. */
 const ing = (
@@ -710,4 +712,12 @@ const EXTRAS: Record<string, { image?: RecipeImage; goodFor: WeatherMood[]; diet
   },
 }
 
-export const SEED_RECIPES: Recipe[] = BASE_RECIPES.map((recipe) => ({ ...recipe, ...EXTRAS[recipe.id], source: 'seed' }))
+const BASE_COURSE: Record<string, Course> = { 'bo-kho-mat-mia': 'man', 'ca-loc-kho-to': 'man' }
+
+export const SEED_RECIPES: Recipe[] = [
+  ...BASE_RECIPES.map(
+    (recipe): Recipe => ({ ...recipe, ...EXTRAS[recipe.id], course: BASE_COURSE[recipe.id], source: 'seed' }),
+  ),
+  ...COM_NHA_RECIPES,
+  ...NHAU_A_AU_RECIPES,
+]

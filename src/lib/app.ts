@@ -89,6 +89,14 @@ export function useInstallPrompt(): (() => Promise<boolean>) | null {
 
 export function registerServiceWorker(): void {
   if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+    // Khi có bản mới, service worker mới nhận quyền điều khiển → tải lại một lần để dùng ngay bản mới.
+    const hadController = !!navigator.serviceWorker.controller
+    let reloaded = false
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!hadController || reloaded) return
+      reloaded = true
+      window.location.reload()
+    })
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('./sw.js').catch(() => {
         /* không đăng ký được (ví dụ mở bằng file://): app vẫn chạy bình thường khi có mạng */

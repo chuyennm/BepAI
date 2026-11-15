@@ -1,11 +1,11 @@
-import { ArrowLeft, Check, HeartPulse, Clock, Flame, Lightbulb, Minus, Play, Plus, ShoppingBasket, Sparkles, Users, Wine } from 'lucide-react'
+import { ArrowLeft, Check, HeartPulse, Share2, Clock, Flame, Lightbulb, Minus, Play, Plus, ShoppingBasket, Sparkles, Users, Wine } from 'lucide-react'
 import { useState } from 'react'
 import ChatDrawer from '../components/ChatDrawer'
 import { Badges, Cover, EmptyState, SaveButton } from '../components/ui'
 import { goBack, navigate } from '../hooks/useHashRoute'
 import { toast } from '../lib/app'
 import { conditionLabel, healthWarnings, useProfile } from '../lib/household'
-import { addToShopping, useRecipe } from '../lib/recipes'
+import { addToShopping, COOKED_KEY, useRecipe } from '../lib/recipes'
 import { formatAmount, scaleIngredient } from '../lib/scaling'
 import { useStored } from '../lib/storage'
 import { formatMinutes, splitInstruction } from '../lib/timeParse'
@@ -18,6 +18,24 @@ const GROUPS: { id: IngredientGroup; title: string }[] = [
 
 const MAX_SERVINGS = 20
 
+function cookedAgo(timestamp: number): string {
+  const days = Math.floor((Date.now() - timestamp) / 86_400_000)
+  return days === 0 ? 'hôm nay' : days === 1 ? 'hôm qua' : `${days} ngày trước`
+}
+
+async function shareRecipe(title: string) {
+  const url = window.location.href
+  try {
+    if (navigator.share) await navigator.share({ title: `${title} — BepAI`, url })
+    else {
+      await navigator.clipboard.writeText(url)
+      toast('Đã chép đường dẫn công thức')
+    }
+  } catch {
+    /* người dùng huỷ chia sẻ */
+  }
+}
+
 export default function RecipeDetail({ id }: { id: string }) {
   const recipe = useRecipe(id)
   const [servingsMap, setServingsMap] = useStored<Record<string, number>>('servings', {})
@@ -25,6 +43,7 @@ export default function RecipeDetail({ id }: { id: string }) {
   const [notes, setNotes] = useStored<Record<string, string>>('notes', {})
   const [chatOpen, setChatOpen] = useState(false)
   const [profile] = useProfile()
+  const [cookedLog] = useStored<Record<string, number[]>>(COOKED_KEY, {})
 
   if (!recipe) {
     return (
@@ -41,6 +60,7 @@ export default function RecipeDetail({ id }: { id: string }) {
   // Mặc định nấu cho đúng số người trong gia đình (đặt trong Cài đặt).
   const servings = servingsMap[id] ?? profile.familySize ?? recipe.baseServings
   const warnings = healthWarnings(recipe, profile.conditions)
+  const cookedTimes = cookedLog[id] ?? []
   const factor = servings / recipe.baseServings
   const setServings = (n: number) =>
     setServingsMap((prev) => ({ ...prev, [id]: Math.min(Math.max(Math.round(n), 1), MAX_SERVINGS) }))
@@ -74,6 +94,14 @@ export default function RecipeDetail({ id }: { id: string }) {
           <ArrowLeft size={20} />
         </button>
         <SaveButton id={recipe.id} className="absolute top-0 right-3 mt-[max(env(safe-area-inset-top),0.75rem)]" />
+        <button
+          type="button"
+          aria-label="Chia sẻ công thức"
+          onClick={() => void shareRecipe(recipe.title)}
+          className="absolute top-0 right-16 mt-[max(env(safe-area-inset-top),0.75rem)] flex h-10 w-10 items-center justify-center rounded-full bg-paper/90 shadow-sm backdrop-blur"
+        >
+          <Share2 size={18} />
+        </button>
       </div>
 
       <div className="relative -mt-6 space-y-4 rounded-t-3xl bg-cream px-4 pt-5">
@@ -81,6 +109,11 @@ export default function RecipeDetail({ id }: { id: string }) {
           <Badges recipe={recipe} />
           <h1 className="font-display text-3xl leading-tight font-bold">{recipe.title}</h1>
           <p className="text-base leading-relaxed text-ink/80">{recipe.description}</p>
+          {cookedTimes.length > 0 && (
+            <p className="text-sm font-semibold text-herb">
+              ✓ Đã nấu {cookedTimes.length} lần · lần gần nhất {cookedAgo(cookedTimes[cookedTimes.length - 1])}
+            </p>
+          )}
         </header>
 
         {warnings.length > 0 && (

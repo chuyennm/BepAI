@@ -5,6 +5,8 @@ export type Route =
   | { name: 'recipe'; id: string }
   | { name: 'cook'; id: string }
   | { name: 'ai' }
+  | { name: 'meals' }
+  | { name: 'meal'; id: string }
   | { name: 'shop' }
   | { name: 'saved' }
   | { name: 'settings' }
@@ -14,6 +16,7 @@ function parse(hash: string): Route {
   const id = second ? decodeURIComponent(second) : ''
   if (first === 'r' && id) return { name: 'recipe', id }
   if (first === 'cook' && id) return { name: 'cook', id }
+  if (first === 'mam') return id ? { name: 'meal', id } : { name: 'meals' }
   if (first === 'ai' || first === 'shop' || first === 'saved' || first === 'settings') return { name: first }
   return { name: 'home' }
 }

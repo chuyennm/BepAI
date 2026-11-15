@@ -1,10 +1,11 @@
-import { Refrigerator, Search, SlidersHorizontal, X } from 'lucide-react'
+import { Heart, Refrigerator, Search, SlidersHorizontal, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Chip, EmptyState, RecipeCard } from '../components/ui'
 import { navigate } from '../hooks/useHashRoute'
 import { profilePlace, suitability, useProfile, useWeather, weatherMood, weatherSummary } from '../lib/household'
 import { fold, matchesOccasion, totalTime, useAllRecipes } from '../lib/recipes'
-import { DIFFICULTY_LABEL, REGION_LABEL, type Category, type Difficulty, type Region } from '../types/recipe'
+import { rankedMealSets } from '../lib/meals'
+import { COURSE_LABEL, DIFFICULTY_LABEL, REGION_LABEL, type Category, type Course, type Difficulty, type Region } from '../types/recipe'
 
 type Occasion = Category | 'nhanh'
 type TimeBand = 'lt15' | '15-30' | '30-60' | 'gt60'
@@ -15,9 +16,10 @@ interface Filters {
   occasion: Occasion | null
   difficulty: Difficulty | null
   time: TimeBand | null
+  course: Course | null
 }
 
-const EMPTY: Filters = { query: '', region: null, occasion: null, difficulty: null, time: null }
+const EMPTY: Filters = { query: '', region: null, occasion: null, difficulty: null, time: null, course: null }
 
 const OCCASIONS: { id: Occasion; label: string; tone?: 'herb' | 'nhau' }[] = [
   { id: 'com-nha', label: '🍚 Cơm gia đình' },
@@ -48,7 +50,7 @@ function greeting(): string {
 export default function Home() {
   const recipes = useAllRecipes()
   const [filters, setFiltersState] = useState<Filters>(remembered)
-  const [showMore, setShowMore] = useState(!!(remembered.difficulty || remembered.time))
+  const [showMore, setShowMore] = useState(!!(remembered.difficulty || remembered.time || remembered.course))
   const setFilters = (patch: Partial<Filters>) =>
     setFiltersState((prev) => (remembered = { ...prev, ...patch }))
   const toggle = <K extends keyof Filters>(key: K, value: Filters[K]) =>
@@ -65,6 +67,7 @@ export default function Home() {
     const matched = recipes.filter((r) => {
       if (filters.region && r.region !== filters.region) return false
       if (filters.occasion && !matchesOccasion(r, filters.occasion)) return false
+      if (filters.course && r.course !== filters.course) return false
       if (filters.difficulty && r.difficulty !== filters.difficulty) return false
       if (filters.time && !TIME_BANDS.find((b) => b.id === filters.time)!.test(totalTime(r))) return false
       if (!q) return true
@@ -79,14 +82,24 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recipes, filters, weather, profile.cityId, profile.spicy, conditionKey])
 
-  const activeCount = [filters.region, filters.occasion, filters.difficulty, filters.time].filter(Boolean).length
+  const activeCount = [filters.region, filters.occasion, filters.difficulty, filters.time, filters.course].filter(Boolean).length
+  const todayMeals = rankedMealSets(recipes, profile, weather, 'com').slice(0, 5)
   const isFiltering = activeCount > 0 || filters.query.trim() !== ''
 
   return (
     <>
       <header className="px-4 pt-safe">
-        <div className="flex items-center gap-2 text-sm font-bold tracking-wide text-chili">
-          <img src="./icons/icon-192.png" alt="" className="h-7 w-7 rounded-lg" /> BEPAI
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm font-bold tracking-wide text-chili">
+            <img src="./icons/icon-192.png" alt="" className="h-7 w-7 rounded-lg" /> BEPAI
+          </div>
+          <button
+            type="button"
+            onClick={() => navigate('/saved')}
+            className="flex h-10 items-center gap-1.5 rounded-full border border-line bg-paper px-3.5 text-sm font-semibold"
+          >
+            <Heart size={16} className="text-chili" /> Đã lưu
+          </button>
         </div>
         <h1 className="mt-2 font-display text-4xl leading-tight font-bold">{greeting()}</h1>
         <button
@@ -162,6 +175,14 @@ export default function Home() {
         {showMore && (
           <div className="animate-rise space-y-2.5">
             <div className="no-scrollbar -mx-4 flex items-center gap-2 overflow-x-auto px-4">
+              <span className="shrink-0 text-xs font-bold text-ink/60 uppercase">Loại món</span>
+              {(Object.keys(COURSE_LABEL) as Course[]).map((c) => (
+                <Chip key={c} active={filters.course === c} onClick={() => toggle('course', c)}>
+                  {COURSE_LABEL[c]}
+                </Chip>
+              ))}
+            </div>
+            <div className="no-scrollbar -mx-4 flex items-center gap-2 overflow-x-auto px-4">
               <span className="shrink-0 text-xs font-bold text-ink/60 uppercase">Độ khó</span>
               {(Object.keys(DIFFICULTY_LABEL) as Difficulty[]).map((d) => (
                 <Chip key={d} active={filters.difficulty === d} onClick={() => toggle('difficulty', d)}>
@@ -180,6 +201,31 @@ export default function Home() {
           </div>
         )}
       </div>
+
+      {!isFiltering && todayMeals.length > 0 && (
+        <section className="mb-5">
+          <div className="mb-2 flex items-center justify-between px-4">
+            <h2 className="text-sm font-bold text-ink/70">Mâm cơm hợp hôm nay</h2>
+            <button type="button" onClick={() => navigate('/mam')} className="text-sm font-semibold text-chili-dark underline underline-offset-2">
+              Xem tất cả
+            </button>
+          </div>
+          <div className="no-scrollbar flex gap-3 overflow-x-auto px-4 pb-1">
+            {todayMeals.map(({ meal, dishes }) => (
+              <button
+                key={meal.id}
+                type="button"
+                onClick={() => navigate(`/mam/${meal.id}`)}
+                className="w-60 shrink-0 rounded-3xl border border-line bg-paper p-4 text-left shadow-sm"
+              >
+                <span className="text-3xl">{meal.emoji}</span>
+                <span className="mt-1 block font-display text-lg leading-tight font-bold">{meal.title}</span>
+                <span className="mt-1 block text-sm leading-snug text-ink/70">{dishes.map((d) => d.title).join(' · ')}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="px-4">
         <div className="mb-3 flex items-center justify-between">

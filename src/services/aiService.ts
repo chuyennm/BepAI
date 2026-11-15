@@ -540,7 +540,11 @@ export async function generateFromFridge(
 Phong cách mong muốn: ${STYLE_BRIEF[style]}.
 Hãy tạo 2 công thức KHÁC NHAU, nấu được thật, tận dụng tối đa nguyên liệu trên, hợp với thời tiết và hoàn cảnh gia đình tôi. Gia vị cơ bản (muối, đường, nước mắm, dầu ăn, tiêu, tỏi, hành) coi như có sẵn; chỉ thêm tối đa 2-3 nguyên liệu phải mua. "baseServings" bằng đúng số người trong gia đình. Trả về JSON đúng cấu trúc đã quy định.`
             : `Hôm nay nhà tôi nên ăn gì? Phong cách mong muốn: ${STYLE_BRIEF[style]}.
-Dựa vào thời tiết hiện tại, mùa, vùng miền và tình hình sức khoẻ gia đình tôi, hãy tạo 2 công thức KHÁC NHAU, nấu được thật, nguyên liệu dễ mua ở chợ gần nhà. Trong "description" nói ngắn gọn vì sao món hợp hôm nay. "baseServings" bằng đúng số người trong gia đình. Trả về JSON đúng cấu trúc đã quy định.`,
+Dựa vào thời tiết hiện tại, mùa, vùng miền và tình hình sức khoẻ gia đình tôi, ${
+                style === 'com-nha'
+                  ? 'hãy lên MỘT MÂM CƠM gồm đúng 3 công thức ăn cùng nhau: 1 món mặn, 1 món canh, 1 món rau'
+                  : 'hãy tạo 2 công thức KHÁC NHAU'
+              }, nấu được thật, nguyên liệu dễ mua ở chợ gần nhà. Trong "description" nói ngắn gọn vì sao món hợp hôm nay. "baseServings" bằng đúng số người trong gia đình. Trả về JSON đúng cấu trúc đã quy định.`,
         },
       ],
     })) {

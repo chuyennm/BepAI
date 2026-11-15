@@ -48,6 +48,31 @@ export type DietFlag =
   | 'ruou'
   | 'tai-song' // chưa chín kỹ
 
+/** Vai trò của món trong mâm cơm. */
+export type Course = 'man' | 'canh' | 'rau' | 'kem'
+
+export const COURSE_LABEL: Record<Course, string> = {
+  man: 'Món mặn',
+  canh: 'Canh',
+  rau: 'Rau',
+  kem: 'Đồ ăn kèm',
+}
+
+/** Một mâm cơm / bàn nhậu dựng sẵn: tổ hợp các món nấu cùng nhau. */
+export interface MealSet {
+  id: string
+  title: string
+  emoji: string
+  kind: 'com' | 'nhau'
+  region: Region
+  description: string
+  /** id các công thức trong mâm. */
+  dishes: string[]
+  /** Thứ ăn kèm không cần công thức (cơm trắng, trái cây…). */
+  extras: string[]
+  goodFor: WeatherMood[]
+}
+
 export interface RecipeImage {
   url: string
   /** Tác giả + giấy phép (ảnh từ Wikimedia Commons). */
@@ -78,6 +103,7 @@ export interface Recipe {
   secrets: string[]
   pairing: Pairing
   tags: string[]
+  course?: Course
   image?: RecipeImage
   goodFor?: WeatherMood[]
   dietFlags?: DietFlag[]

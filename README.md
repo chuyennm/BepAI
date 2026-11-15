@@ -8,6 +8,9 @@ PWA công thức nấu ăn chạy offline, có trợ lý AI: món Việt ba mi�
 
 - **Gợi ý theo hoàn cảnh:** thời tiết thật tại nơi bạn ở (Open-Meteo), số người trong nhà, vùng miền, khẩu vị cay.
 - **Lưu ý sức khoẻ:** khai báo trong nhà có người tiểu đường, cao huyết áp, gout, dạ dày, thận, mang thai, trẻ nhỏ, dị ứng… app cảnh báo món nên tránh / cần điều chỉnh và hạ thứ hạng các món đó.
+- **65 công thức, 21 mâm cơm / bàn nhậu dựng sẵn:** món mặn, canh, rau, đồ kèm, ăn sáng, món nhậu dễ làm, món Á, món Âu.
+- **Mâm cơm & thực đơn 7 ngày:** chọn mâm theo thời tiết, "Chọn giúp tôi", tự xếp cả tuần không lặp mâm, gom nguyên liệu cả mâm / cả tuần vào danh sách đi chợ, gợi ý thứ tự nấu.
+- **Nhật ký đã nấu:** món vừa nấu trong 3 ngày được lùi xuống để bữa cơm đổi món.
 - **Tìm & lọc:** theo vùng miền, dịp ăn, độ khó, thời gian; tìm không cần gõ dấu.
 - **Tính khẩu phần:** 1–20 người hoặc "bàn nhậu", tự làm tròn định lượng kiểu đi chợ.
 - **Danh sách đi chợ:** đánh dấu thứ đã có, đẩy phần thiếu vào danh sách gom theo quầy hàng.
@@ -44,13 +47,14 @@ public/            manifest.webmanifest, sw.js (service worker), icons/
 scripts/           gen-icons.mjs — sinh icon PNG
 src/
   types/recipe.ts      interface Recipe, Ingredient, Step…
-  data/recipes.ts      10 công thức mẫu + ảnh, thời tiết hợp món, cờ dinh dưỡng
+  data/                recipes.ts (10 món đặc sản + ảnh), comNha.ts, nhauAAu.ts (55 món viết bằng builder.ts), mealSets.ts (mâm cơm)
   services/aiService.ts  Gemini / DeepSeek / OpenAI-compatible, streaming, tự chọn model, chế độ dự phòng
   lib/household.ts     hồ sơ gia đình, thời tiết, quy tắc cảnh báo bệnh lý
+  lib/meals.ts         xếp hạng mâm cơm, thực đơn 7 ngày, đi chợ cả mâm
   lib/                 storage (localStorage), scaling (khẩu phần), timeParse (hẹn giờ), recipes, app (PWA)
   hooks/               useWakeLock, useVoice, useHashRoute
   components/          ui.tsx, ChatDrawer.tsx
-  pages/               Home, RecipeDetail, CookMode, Assistant, Shopping, Saved, Settings
+  pages/               Home, Meals, MealDetail, RecipeDetail, CookMode, Assistant, Shopping, Saved, Settings
 ```
 
 ## Lưu ý

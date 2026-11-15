@@ -17,6 +17,23 @@ export interface ShoppingItem {
   from: string[]
 }
 
+export const COOKED_KEY = 'cooked'
+
+/** Ghi nhận vừa nấu xong một món (giữ 20 lần gần nhất, bỏ qua lần bấm trùng trong 1 giờ). */
+export function markCooked(id: string): void {
+  const log = getStored<Record<string, number[]>>(COOKED_KEY, {})
+  const times = log[id] ?? []
+  if (times.length && Date.now() - times[times.length - 1] < 3600_000) return
+  setStored(COOKED_KEY, { ...log, [id]: [...times, Date.now()].slice(-20) })
+}
+
+/** Số ngày kể từ lần nấu gần nhất (null nếu chưa nấu). */
+export function daysSinceCooked(id: string): number | null {
+  const times = getStored<Record<string, number[]>>(COOKED_KEY, {})[id]
+  if (!times?.length) return null
+  return Math.floor((Date.now() - times[times.length - 1]) / 86_400_000)
+}
+
 export const totalTime = (r: Recipe) => r.prepTime + r.cookTime
 
 /** Bỏ dấu tiếng Việt để tìm kiếm không phân biệt dấu. */

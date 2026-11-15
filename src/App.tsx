@@ -1,4 +1,4 @@
-import { Compass, Heart, Settings as SettingsIcon, ShoppingBasket, Sparkles, WifiOff } from 'lucide-react'
+import { Compass, CookingPot, Settings as SettingsIcon, ShoppingBasket, Sparkles, WifiOff } from 'lucide-react'
 import { useEffect } from 'react'
 import { navigate, useHashRoute, type Route } from './hooks/useHashRoute'
 import { useOnline, useToast } from './lib/app'
@@ -7,6 +7,8 @@ import { useStored } from './lib/storage'
 import Assistant from './pages/Assistant'
 import CookMode from './pages/CookMode'
 import Home from './pages/Home'
+import MealDetail from './pages/MealDetail'
+import Meals from './pages/Meals'
 import RecipeDetail from './pages/RecipeDetail'
 import Saved from './pages/Saved'
 import Settings from './pages/Settings'
@@ -14,9 +16,9 @@ import Shopping from './pages/Shopping'
 
 const TABS: { route: Route['name']; path: string; label: string; icon: typeof Compass }[] = [
   { route: 'home', path: '/', label: 'Khám phá', icon: Compass },
+  { route: 'meals', path: '/mam', label: 'Mâm cơm', icon: CookingPot },
   { route: 'ai', path: '/ai', label: 'BepAI', icon: Sparkles },
   { route: 'shop', path: '/shop', label: 'Đi chợ', icon: ShoppingBasket },
-  { route: 'saved', path: '/saved', label: 'Đã lưu', icon: Heart },
   { route: 'settings', path: '/settings', label: 'Cài đặt', icon: SettingsIcon },
 ]
 
@@ -68,7 +70,7 @@ export default function App() {
 
   if (route.name === 'cook') return <CookMode id={route.id} />
 
-  const showNav = route.name !== 'recipe'
+  const showNav = route.name !== 'recipe' && route.name !== 'meal'
   return (
     <div className="mx-auto min-h-dvh max-w-3xl">
       {!online && (
@@ -79,6 +81,8 @@ export default function App() {
       <main className={showNav ? 'pb-24' : ''}>
         {route.name === 'home' && <Home />}
         {route.name === 'recipe' && <RecipeDetail key={route.id} id={route.id} />}
+        {route.name === 'meals' && <Meals />}
+        {route.name === 'meal' && <MealDetail key={route.id} id={route.id} />}
         {route.name === 'ai' && <Assistant />}
         {route.name === 'shop' && <Shopping />}
         {route.name === 'saved' && <Saved />}

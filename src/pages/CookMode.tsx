@@ -5,7 +5,7 @@ import { navigate } from '../hooks/useHashRoute'
 import { speak, speechSupported, stopSpeaking, useVoiceCommands, voiceSupported, type VoiceCommand } from '../hooks/useVoice'
 import { useWakeLock } from '../hooks/useWakeLock'
 import { useProfile } from '../lib/household'
-import { useRecipe } from '../lib/recipes'
+import { markCooked, useRecipe } from '../lib/recipes'
 import { formatAmount, scaleIngredient } from '../lib/scaling'
 import { useStored } from '../lib/storage'
 import { formatClock, splitInstruction } from '../lib/timeParse'
@@ -61,12 +61,13 @@ export default function CookMode({ id }: { id: string }) {
         const next = i + delta
         if (next >= stepCount) {
           setFinished(true)
+          markCooked(id)
           return i
         }
         return Math.max(next, 0)
       })
     },
-    [stepCount],
+    [stepCount, id],
   )
 
   const readStep = useCallback(() => {
